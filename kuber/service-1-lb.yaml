@@ -1,0 +1,40 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name : httpds
+  labels:
+    app : myhttpds
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      project: projectborealis
+  template:
+    metadata:
+      labels:
+        project: projectborealis # Service will look for those PODs labels!!!
+    spec:
+      containers:
+        - name : httpds
+          image: httpd:latest
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpds
+  labels:
+    app: myhttpds
+    env: prod
+    owner: PavelKhoroshilov
+spec:
+  selector: # Selecting PODs with those labes
+    project: projectborealis
+  ports:
+    - name: app-listener
+      protocol : TCP
+      port : 80 # Port on LoadBalancer
+      targetPort: 80 # Port on POD
+  type: LoadBalancer
